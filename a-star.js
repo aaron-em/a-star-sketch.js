@@ -60,6 +60,7 @@ var bigMap = [
 ];
 
 [testMap, trapMap, bigMap]
+// [bigMap]
   .forEach(function(map) {
     var start = new Point(0, 0);
     var end = new Point(map.length-1, map[map.length-1].length-1);
@@ -77,9 +78,10 @@ process.exit(0);
 // ** AStar and related functions
 
 function AStar(map, start, end) {
-
   var state = {
     map: map,
+    start: start,
+    end: end,
     frontier: new PointCostList([start, 0]),
     examined: new PointList(),
     prior: {},
@@ -110,13 +112,14 @@ function AStar(map, start, end) {
 function makeEvaluator(state) {
   return function(neighbor) {
     var cost = state.costs[state.here]
-          + Math.max(getNodeCost(state.map, neighbor), 1);
+          + Math.min(getNodeCost(state.map, neighbor),
+                     state.end.distanceFrom(neighbor));
     if (cost >= state.costs[neighbor]
         || state.examined.contains(neighbor)) return;
 
     state.costs[neighbor] = cost;
     
-    if (cost < Infinity) {
+    if (getNodeCost(state.map, neighbor) < Infinity) {
       state.frontier.push(neighbor, cost);
     };
     
