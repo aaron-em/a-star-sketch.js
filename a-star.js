@@ -1,4 +1,5 @@
 /* jshint esversion: 6 */
+// de http://www.redblobgames.com/pathfinding/a-star/introduction.html
 
 var types = require('./classes.js');
 var Point = types.Point;
@@ -36,40 +37,58 @@ var trapMap = [
   [ν, ν, ν, ν, ν]
 ];
 
-var bigMap = [
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
-  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+var stringMap = mapFromString(
+  '··#··\n' + 
+  '·#···\n' + 
+  '···#·\n'
+);
+
+var bigRandomMap = [
+  [ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ι],
+  [ν,ν,ι,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ι,ν,ν,ν,ι,ι,ι,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ι,ν,ι,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν],
+  [ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ι,ι,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν],
+  [ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ι,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ι,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν],
+  [ι,ν,ι,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν],
+  [ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν],
+  [ν,ι,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν,ν],
+  [ν,ι,ι,ι,ι,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν],
 ];
 
-[testMap, trapMap, bigMap]
-// [bigMap]
+for (var i = 0; i < 50; i++) {
+  var y = Math.floor(Math.random() * bigRandomMap.length);
+  var x = Math.floor(Math.random() * bigRandomMap[y].length);
+  bigRandomMap[y][x] = ι;
+};
+
+[stringMap, testMap, trapMap, bigRandomMap]
   .forEach(function(map) {
     var start = new Point(0, 0);
-    var end = new Point(map.length-1, map[map.length-1].length-1);
-    
+    var end = new Point(map[map.length-1].length-1, map.length-1);
+
+    map[start.y][start.x] = ν;
+    map[end.y][end.x] = ν;
+
+    var t0 = (new Date()).getTime();
     var path = AStar(map, start, end);
+    var t1 = (new Date()).getTime();
+    var Δt = t1 - t0;
+    
     if (path === null) {
-      console.log(drawMap(map, [start, end]) + '\n');
+      console.log(drawMap(map, [start, end]) + '\n' + Δt + 'ms\n');
     } else {
-      console.log(drawMap(map, path) + '\n');
+      console.log(drawMap(map, path) + '\n' + Δt + 'ms\n');
     };
   });
 
@@ -169,7 +188,7 @@ function drawMap(map, pathPoints) {
     var char;
     if (i === 0) char = 'o';
     if (i === pathPoints.length - 1) char = 'x';
-    if (!char) char = pathDot(step, pathPoints[i-1]);
+    if (!char) char = pathArrow(step, pathPoints[i-1]);
     return [step, char];
   });
 
@@ -219,4 +238,17 @@ function pathArrow(from, to) {
   var Δy = from.y - to.y;
 
   return arrows[Δy][Δx];
+};
+
+function mapFromString(string) {
+  return string
+    .split(/\n/)
+    .map(function(line) {
+      return line
+        .split('')
+        .map(function(char) {
+          return (char === '#' ? ι : ν);
+        });
+    })
+    .filter((row) => row.length > 0);
 };
