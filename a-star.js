@@ -3,6 +3,7 @@
 var types = require('./classes.js');
 var Point = types.Point;
 var PointList = types.PointList;
+var PointCostList = types.PointCostList;
 
 var process = require('process');
 
@@ -20,49 +21,112 @@ var emptyMap = [
 ];
 
 var testMap = [
-  [ν, ν, ν, ν, ν],
+  [ν, ν, ι, ν, ν],
   [ν, ι, ν, ι, ν],
-  [ν, ν, ι, ι, ν],
+  [ν, ι, ι, ι, ν],
+  [ν, ι, ν, ν, ν],
+  [ν, ν, ν, ι, ν]
+];
+
+var trapMap = [
+  [ν, ν, ι, ν, ν],
+  [ν, ν, ι, ν, ν],
+  [ι, ι, ι, ν, ν],
   [ν, ν, ν, ν, ν],
   [ν, ν, ν, ν, ν]
 ];
 
-var start = new Point(0, 0);
-var end = new Point(4, 4);
+var bigMap = [
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+  [ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν, ν],
+];
 
-var path = AStar(testMap, start, end);
-if (path === null) {
-  console.log(drawMap(testMap, [start, end]));
-} else {
-  console.log(drawMap(testMap, path));
-};
+[testMap, trapMap, bigMap]
+  .forEach(function(map) {
+    var start = new Point(0, 0);
+    var end = new Point(map.length-1, map[map.length-1].length-1);
+    
+    var path = AStar(map, start, end);
+    if (path === null) {
+      console.log(drawMap(map, [start, end]) + '\n');
+    } else {
+      console.log(drawMap(map, path) + '\n');
+    };
+  });
 
 process.exit(0);
 
 // ** AStar and related functions
 
 function AStar(map, start, end) {
-  var frontier = new PointList(start);
-  var examined = new PointList();
-  var prior = {};
-  var cost = {};
-  var here;
 
-  while (frontier.length() > 0) {
-    here = frontier.shift();
-    if (here.equals(end))
-      return gatherPath(prior, start, end);
+  var state = {
+    map: map,
+    frontier: new PointCostList([start, 0]),
+    examined: new PointList(),
+    prior: {},
+    costs: {},
+    here: null
+  };
+  
+  state.prior[start] = null;
+  state.costs[start] = 0;
 
-    findNeighbors(map, here)
-      .forEach(function(neighbor) {
-        if (examined.contains(neighbor)) return;
-        frontier.push(neighbor);
-        examined.push(neighbor);
-        prior[neighbor] = here;
-      });
+  var evaluateNeighbor = makeEvaluator(state);
+  var neighbors;
+
+  while (state.frontier.length() > 0) {
+    state.here = state.frontier.shift();
+    neighbors = findNeighbors(state.map, state.here);
+    
+    if (state.here.equals(end)) {
+      return gatherPath(state.prior, state.here);
+    };
+
+    neighbors.forEach(evaluateNeighbor);
   };
 
   return null;
+};
+
+function makeEvaluator(state) {
+  return function(neighbor) {
+    var cost = state.costs[state.here]
+          + Math.max(getNodeCost(state.map, neighbor), 1);
+    if (cost >= state.costs[neighbor]
+        || state.examined.contains(neighbor)) return;
+
+    state.costs[neighbor] = cost;
+    
+    if (cost < Infinity) {
+      state.frontier.push(neighbor, cost);
+    };
+    
+    state.examined.push(neighbor);
+    state.prior[neighbor] = state.here;
+  };
+};
+
+function getNodeCost(map, point) {
+  return map[point.y][point.x];
 };
 
 function findNeighbors(map, point) {
@@ -80,12 +144,12 @@ function findNeighbors(map, point) {
     .map((n) => new Point(n[0], n[1]));
 };
 
-function gatherPath(prior, start, end) {
-  var here = end;
+function gatherPath(prior, from) {
+  var here = from;
   var next = null;
   var path = [here];
 
-  while (! here.equals(start)) {
+  while (prior[here] !== null) {
     next = prior[here];
     path.push(next);
     here = next;
@@ -102,7 +166,7 @@ function drawMap(map, pathPoints) {
     var char;
     if (i === 0) char = 'o';
     if (i === pathPoints.length - 1) char = 'x';
-    if (!char) char = pathArrow(step, pathPoints[i-1]);
+    if (!char) char = pathDot(step, pathPoints[i-1]);
     return [step, char];
   });
 
@@ -126,20 +190,24 @@ function drawMap(map, pathPoints) {
     .join('\n');
 };
 
+function pathDot(from, to) {
+  return '●';
+};
+
 function pathArrow(from, to) {
   var arrows = {
     '-1': {
       '-1': '↖',
-      '0': '←',
-      '1': '↙'
+      '0': '↑',
+      '1': '↗'
     },
     '0': {
-      '-1': '↑',
-      '1': '↓'
+      '-1': '←',
+      '1': '→'
     },
     '1': {
-      '-1': '↗',
-      '0': '→',
+      '-1': '↙',
+      '0': '↓',
       '1': '↘'
     }
   };

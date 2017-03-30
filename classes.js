@@ -1,7 +1,11 @@
+var util = require('util');
+
 function Point(x, y) {
   this.x = x;
   this.y = y;
 };
+
+
 
 Point.prototype.toString = function() {
   return '[' + this.x + ',' + this.y + ']';
@@ -16,8 +20,8 @@ Point.prototype.equals = function(that) {
     && (this.y === that.y);
 };
 
-// FIXME this can just be an array with indexOf, as long as
-// Point.toString works
+
+
 function PointList() {
   this.queue = [].slice.call(arguments);
 };
@@ -43,7 +47,50 @@ PointList.prototype.contains = function(what) {
     .some((point) => point.equals(what));
 };
 
+
+
+function PointCostList() {
+  var self = this;
+  
+  this.queues = {};
+  [].slice.call(arguments)
+    .forEach(function(arg, i) {
+      var point = arg[0];
+      var pri = arg[1];
+      self.push(point, pri);
+    });
+};
+
+PointCostList.prototype.length = function() {
+  return Object.keys(this.queues)
+    .map((pri) => this.queues[pri].length)
+    .reduce((m, n) => m + n);
+};
+
+PointCostList.prototype.shift = function() {
+  var pri = Object.keys(this.queues)
+        .filter((p) => this.queues[p].length > 0)
+        .sort()[0];
+
+  return pri
+    ? this.queues[pri].shift()
+    : undefined;
+};
+
+PointCostList.prototype.push = function(point, pri) {
+  if (! (point instanceof Point)) {
+    throw new Error('May not PointCostList#push ' + point);
+  };
+
+  this.queues[pri] = this.queues[pri] || [];
+  this.queues[pri].push(point);
+};
+
+
+
+
 module.exports = {
   Point: Point,
-  PointList: PointList
+  PointList: PointList,
+  PointCostList: PointCostList
 };
