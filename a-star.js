@@ -66,8 +66,7 @@ var bigRandomMap = [
   [ν,ι,ι,ι,ι,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν],
 ];
 
-var enormousRandomMaps = [100// , 200, 300, 400, 500
-                         ]
+var enormousRandomMaps = [100, 200, 300, 400, 500]
       .map(function(n) {
         var enormousRandomMap = [];
         
@@ -89,26 +88,32 @@ for (var i = 0; i < 50; i++) {
   bigRandomMap[y][x] = ι;
 };
 
-// [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
-[enormousRandomMaps[0]]
-  .forEach(function(map) {
-    var start = new Point(0, 0);
-    var end = new Point(map[map.length-1].length-1, map.length-1);
+while (true) {
 
-    map[start.y][start.x] = ν;
-    map[end.y][end.x] = ν;
+  // [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
+  [enormousRandomMaps[4]]
+    .forEach(function(map) {
+      var start = new Point(0, 0);
+      var end = new Point(map[map.length-1].length-1, map.length-1);
 
-    var t0 = (new Date()).getTime();
-    var path = AStar(map, start, end);
-    var t1 = (new Date()).getTime();
-    var Δt = t1 - t0;
-    
-    if (path === null) {
-      console.log(drawMap(map, [start, end]) + '\n' + Δt + 'ms\n');
-    } else {
-      console.log(drawMap(map, path) + '\n' + Δt + 'ms\n');
-    };
-  });
+      map[start.y][start.x] = ν;
+      map[end.y][end.x] = ν;
+
+      var t0 = (new Date()).getTime();
+      var path = AStar(map, start, end);
+      var t1 = (new Date()).getTime();
+      var Δt = t1 - t0;
+      
+      if (path === null) {
+        console.log('no path', Δt + 'ms\n');
+        // console.log(drawMap(map, [start, end]) + '\n' + Δt + 'ms\n');
+      } else {
+        console.log('found path', Δt + 'ms\n');
+        // console.log(drawMap(map, path) + '\n' + Δt + 'ms\n');
+      };
+    });
+
+};
 
 process.exit(0);
 
