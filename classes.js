@@ -5,8 +5,6 @@ function Point(x, y) {
   this.y = y;
 };
 
-
-
 Point.prototype.toString = function() {
   return '[' + this.x + ',' + this.y + ']';
 };
@@ -28,7 +26,7 @@ Point.prototype.distanceFrom = function(that) {
 
 
 function PointList() {
-  this.queue = [].slice.call(arguments);
+  this.queue = [];
   this.queueHash = {};
 };
 
@@ -53,22 +51,12 @@ PointList.prototype.push = function(that) {
 
 PointList.prototype.contains = function(what) {
   return !!this.queueHash[what];
-  // return this.queue
-  //   .some((point) => point.equals(what));
 };
 
 
 
 function PointCostList() {
-  var self = this;
-  
   this.queues = {};
-  [].slice.call(arguments)
-    .forEach(function(arg, i) {
-      var point = arg[0];
-      var pri = arg[1];
-      self.push(point, pri);
-    });
 };
 
 PointCostList.prototype.length = function() {

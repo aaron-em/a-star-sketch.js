@@ -124,13 +124,14 @@ function AStar(map, start, end) {
     map: map,
     start: start,
     end: end,
-    frontier: new PointCostList([start, 0]),
+    frontier: new PointCostList(),
     examined: new PointList(),
     prior: {},
     costs: {},
     here: null
   };
-  
+
+  state.frontier.push(start, 0);
   state.prior[start] = null;
   state.costs[start] = 0;
 
