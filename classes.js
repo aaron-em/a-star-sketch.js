@@ -29,6 +29,7 @@ Point.prototype.distanceFrom = function(that) {
 
 function PointList() {
   this.queue = [].slice.call(arguments);
+  this.queueHash = {};
 };
 
 PointList.prototype.length = function() {
@@ -36,20 +37,24 @@ PointList.prototype.length = function() {
 };
 
 PointList.prototype.shift = function() {
-  return this.queue.shift();
+  var point = this.queue.shift();
+  this.queueHash[point] -= 1;
+  return point;
 };
 
 PointList.prototype.push = function(that) {
   if (! (that instanceof Point)) {
     throw new Error('May not PointList#push ' + that);
   };
-  
+
+  this.queueHash[that] = this.queueHash[that] ? this.queueHash[that] + 1 : 1;
   return this.queue.push(that);
 };
 
 PointList.prototype.contains = function(what) {
-  return this.queue
-    .some((point) => point.equals(what));
+  return !!this.queueHash[what];
+  // return this.queue
+  //   .some((point) => point.equals(what));
 };
 
 
