@@ -73,7 +73,7 @@ var enormousRandomMaps = [100, 200, 300, 400, 500]
         for (var i = 0; i < n; i++) {
           var row = [];
           for (var j = 0; j < n; j++) {
-            row.push(Math.random() < 0.3 ? ι : ν);
+            row.push(Math.random() < 0 ? ι : ν);
           };
 
           enormousRandomMap.push(row);
@@ -91,7 +91,7 @@ for (var i = 0; i < 50; i++) {
 while (true) {
 
   // [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
-  [enormousRandomMaps[4]]
+  [enormousRandomMaps[1]]
     .forEach(function(map) {
       var start = new Point(0, 0);
       var end = new Point(map[map.length-1].length-1, map.length-1);
@@ -143,6 +143,15 @@ function AStar(map, start, end) {
     neighbors = findNeighbors(state.map, state.here);
     
     if (state.here.equals(end)) {
+
+      var drawn = state.map
+            .map((row) =>
+                 row.map((char) => '·'));
+      state.examined.queue
+        .forEach((point) => drawn[point.y][point.x] = '●');
+      console.log(drawMap(drawn, []));
+      process.exit(0);
+      
       return gatherPath(state.prior, state.here);
     };
 
@@ -157,8 +166,8 @@ function makeEvaluator(state) {
     var cost = state.costs[state.here]
           + Math.min(getNodeCost(state.map, neighbor),
                      state.end.distanceFrom(neighbor));
-    if (cost >= state.costs[neighbor]
-        || state.examined.contains(neighbor)) return;
+    if (state.examined.contains(neighbor)
+        || cost >= state.costs[neighbor]) return;
 
     state.costs[neighbor] = cost;
     
@@ -212,7 +221,7 @@ function drawMap(map, pathPoints) {
     var char;
     if (i === 0) char = 'o';
     if (i === pathPoints.length - 1) char = 'x';
-    if (!char) char = pathArrow(step, pathPoints[i-1]);
+    if (!char) char = pathDot(step, pathPoints[i-1]);
     return [step, char];
   });
 
