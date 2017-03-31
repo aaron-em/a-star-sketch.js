@@ -66,13 +66,31 @@ var bigRandomMap = [
   [ν,ι,ι,ι,ι,ν,ν,ν,ν,ν,ν,ι,ν,ν,ν,ν,ν,ν,ν,ν],
 ];
 
+var enormousRandomMaps = [100// , 200, 300, 400, 500
+                         ]
+      .map(function(n) {
+        var enormousRandomMap = [];
+        
+        for (var i = 0; i < n; i++) {
+          var row = [];
+          for (var j = 0; j < n; j++) {
+            row.push(Math.random() < 0.3 ? ι : ν);
+          };
+
+          enormousRandomMap.push(row);
+        };
+
+        return enormousRandomMap;
+      });
+
 for (var i = 0; i < 50; i++) {
   var y = Math.floor(Math.random() * bigRandomMap.length);
   var x = Math.floor(Math.random() * bigRandomMap[y].length);
   bigRandomMap[y][x] = ι;
 };
 
-[stringMap, testMap, trapMap, bigRandomMap]
+// [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
+[enormousRandomMaps[0]]
   .forEach(function(map) {
     var start = new Point(0, 0);
     var end = new Point(map[map.length-1].length-1, map.length-1);
