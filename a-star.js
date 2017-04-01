@@ -91,7 +91,7 @@ for (var i = 0; i < 50; i++) {
 while (true) {
 
   // [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
-  [enormousRandomMaps[1]]
+  enormousRandomMaps
     .forEach(function(map) {
       var start = new Point(0, 0);
       var end = new Point(map[map.length-1].length-1, map.length-1);
@@ -100,22 +100,30 @@ while (true) {
       map[end.y][end.x] = ν;
 
       var t0 = (new Date()).getTime();
-      var path = AStar(map, start, end);
+      var vals = AStar(map, start, end);
       var t1 = (new Date()).getTime();
       var Δt = t1 - t0;
+
+      var path = vals[0];
+      var state = vals[1];
       
+      state.examined.queue
+        .forEach(function(point) {
+          var v = map[point.y][point.x];
+          map[point.y][point.x] = (v === ν ? '×' : v);
+        });
+
       if (path === null) {
-        console.log('no path', Δt + 'ms\n');
-        // console.log(drawMap(map, [start, end]) + '\n' + Δt + 'ms\n');
+        // console.log(drawMap(map, [start, end]) + '\n');
+        console.log('no path for ' + map.length + ' in ' + Δt + 'ms\n');
       } else {
-        console.log('found path', Δt + 'ms\n');
-        // console.log(drawMap(map, path) + '\n' + Δt + 'ms\n');
+        // console.log(drawMap(map, path) + '\n');
+        console.log('found path for ' + map.length + ' in ' + Δt + 'ms\n');
       };
     });
 
+  process.exit(0);
 };
-
-process.exit(0);
 
 // ** AStar and related functions
 
@@ -139,27 +147,27 @@ function AStar(map, start, end) {
   var evaluateNeighbor = makeEvaluator(state);
   var neighbors;
 
-  while (state.frontier.length() > 0) {
+  while (state.frontier.length > 0) {
     state.here = state.frontier.shift();
     neighbors = findNeighbors(state.map, state.here);
     
     if (state.here.equals(end))
-      return gatherPath(state.prior, state.here);
+      return [gatherPath(state.prior, state.here), state];
 
     neighbors.forEach(evaluateNeighbor);
   };
 
-  return null;
+  return [null, state];
 };
 
 function makeEvaluator(state) {
   return function(neighbor) {
     var definedCost = getNodeCost(state.map, neighbor);
-    var distCost = state.end.distanceFrom(neighbor);
+    var distCost = state.end.distanceFrom(neighbor) + 1;
 
-    var cost = (state.pathCosts[state.here] || 0) +
-          Math.max(definedCost,
-                   distCost);
+    var cost = (state.pathCosts[state.here] || 0)
+          + Math.pow(distCost, 15)
+          + definedCost;
 
     if (state.examined.contains(neighbor)
         || cost >= state.costs[neighbor]) return;

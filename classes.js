@@ -19,8 +19,8 @@ Point.prototype.equals = function(that) {
 };
 
 Point.prototype.distanceFrom = function(that) {
-  return Math.sqrt(Math.abs(Math.pow(that.x - this.x, 2) -
-                            Math.pow(that.y - this.y, 2)));
+  return Math.sqrt(Math.pow(that.x - this.x, 2) +
+                   Math.pow(that.y - this.y, 2));
 };
 
 
@@ -59,6 +59,7 @@ function PointCostList() {
   this.queues = {};
   this.length = 0;
   this.priority = Infinity;
+  this.priorities = [0];
   // TODO pri fifo that works
 };
 
