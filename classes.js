@@ -19,8 +19,8 @@ Point.prototype.equals = function(that) {
 };
 
 Point.prototype.distanceFrom = function(that) {
-  return Math.sqrt(Math.pow(that.x - this.x, 2) -
-                   Math.pow(that.y - this.y, 2));
+  return Math.sqrt(Math.abs(Math.pow(that.x - this.x, 2) -
+                            Math.pow(that.y - this.y, 2)));
 };
 
 
@@ -58,18 +58,21 @@ PointList.prototype.contains = function(what) {
 function PointCostList() {
   this.queues = {};
   this.length = 0;
+  this.priority = Infinity;
+  // TODO pri fifo that works
 };
 
 PointCostList.prototype.shift = function() {
-  var pri = Object.keys(this.queues)
-        .filter((p) => this.queues[p].length > 0)
-        .sort()[0];
+  if (this.queues[this.priority].length === 0) {
+    this.priority = Object.keys(this.queues)
+      .filter((p) => (this.queues[p].length > 0))
+      .sort()[0];
+  };
 
+  var point = this.queues[this.priority].shift();
   this.length -= 1;
 
-  return pri
-    ? this.queues[pri].shift()
-    : undefined;
+  return point;
 };
 
 PointCostList.prototype.push = function(point, pri) {
@@ -77,10 +80,13 @@ PointCostList.prototype.push = function(point, pri) {
     throw new Error('May not PointCostList#push ' + point);
   };
 
-  this.length += 1;
-  
   this.queues[pri] = this.queues[pri] || [];
   this.queues[pri].push(point);
+  this.length += 1;
+
+  if (pri < this.priority) {
+    this.priority = pri;
+  };
 };
 
 
