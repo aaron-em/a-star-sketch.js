@@ -57,18 +57,15 @@ PointList.prototype.contains = function(what) {
 
 function PointCostList() {
   this.queues = {};
-};
-
-PointCostList.prototype.length = function() {
-  return Object.keys(this.queues)
-    .map((pri) => this.queues[pri].length)
-    .reduce((m, n) => m + n);
+  this.length = 0;
 };
 
 PointCostList.prototype.shift = function() {
   var pri = Object.keys(this.queues)
         .filter((p) => this.queues[p].length > 0)
         .sort()[0];
+
+  this.length -= 1;
 
   return pri
     ? this.queues[pri].shift()
@@ -80,6 +77,8 @@ PointCostList.prototype.push = function(point, pri) {
     throw new Error('May not PointCostList#push ' + point);
   };
 
+  this.length += 1;
+  
   this.queues[pri] = this.queues[pri] || [];
   this.queues[pri].push(point);
 };
