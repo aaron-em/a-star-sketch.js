@@ -128,6 +128,7 @@ function AStar(map, start, end) {
     examined: new PointList(),
     prior: {},
     costs: {},
+    pathCosts: {},
     here: null
   };
 
@@ -142,18 +143,8 @@ function AStar(map, start, end) {
     state.here = state.frontier.shift();
     neighbors = findNeighbors(state.map, state.here);
     
-    if (state.here.equals(end)) {
-
-      var drawn = state.map
-            .map((row) =>
-                 row.map((char) => '·'));
-      state.examined.queue
-        .forEach((point) => drawn[point.y][point.x] = '●');
-      console.log(drawMap(drawn, []));
-      process.exit(0);
-      
+    if (state.here.equals(end))
       return gatherPath(state.prior, state.here);
-    };
 
     neighbors.forEach(evaluateNeighbor);
   };
@@ -163,20 +154,24 @@ function AStar(map, start, end) {
 
 function makeEvaluator(state) {
   return function(neighbor) {
-    var cost = state.costs[state.here]
-          + Math.min(getNodeCost(state.map, neighbor),
-                     state.end.distanceFrom(neighbor));
+    var definedCost = getNodeCost(state.map, neighbor);
+    var distCost = state.end.distanceFrom(neighbor);
+
+    var cost = (state.pathCosts[state.here] || 0) +
+          Math.max(definedCost,
+                   distCost);
+
     if (state.examined.contains(neighbor)
         || cost >= state.costs[neighbor]) return;
-
     state.costs[neighbor] = cost;
     
-    if (getNodeCost(state.map, neighbor) < Infinity) {
+    if (definedCost < Infinity) {
       state.frontier.push(neighbor, cost);
     };
     
     state.examined.push(neighbor);
     state.prior[neighbor] = state.here;
+    state.pathCosts[neighbor] = cost;
   };
 };
 
