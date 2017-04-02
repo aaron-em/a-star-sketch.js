@@ -60,7 +60,7 @@ function PointCostList() {
   this.length = 0;
   this.priority = Infinity;
   this.priorities = [0];
-  // TODO pri fifo that works
+  // TODO usable speed
 };
 
 PointCostList.prototype.shift = function() {

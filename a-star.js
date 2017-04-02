@@ -91,7 +91,7 @@ for (var i = 0; i < 50; i++) {
 while (true) {
 
   // [stringMap, testMap, trapMap, bigRandomMap].concat(enormousRandomMaps)
-  enormousRandomMaps
+  [enormousRandomMaps[0]]
     .forEach(function(map) {
       var start = new Point(0, 0);
       var end = new Point(map[map.length-1].length-1, map.length-1);
@@ -107,11 +107,11 @@ while (true) {
       var path = vals[0];
       var state = vals[1];
       
-      state.examined.queue
-        .forEach(function(point) {
-          var v = map[point.y][point.x];
-          map[point.y][point.x] = (v === ν ? '×' : v);
-        });
+      // state.examined.queue
+      //   .forEach(function(point) {
+      //     var v = map[point.y][point.x];
+      //     map[point.y][point.x] = (v === ν ? '×' : v);
+      //   });
 
       if (path === null) {
         // console.log(drawMap(map, [start, end]) + '\n');
@@ -122,7 +122,7 @@ while (true) {
       };
     });
 
-  process.exit(0);
+  // process.exit(0);
 };
 
 // ** AStar and related functions
